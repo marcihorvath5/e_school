@@ -13,6 +13,8 @@ namespace e_school.Models
         public int? ClassId { get; set; }
         public Class? Class { get; set; }
 
-
+        public ICollection<Grade>? Grades { get; set; }
+        public ICollection<TeacherSubject>? Subjects { get; set; }
+        public ICollection<Grade>? GivenGrades { get; set; }
     }
 }
