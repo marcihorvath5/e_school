@@ -1,0 +1,30 @@
+interfészek:
+-User:
+	-Regisztráció
+	-Bejelentkezés
+
+Diákok:
+	-Jegyek/Hiányzások megtekintése
+	-Órarend megtekintése
+	-Tanárok által feltöltött dokumentumok megjelenítése
+Szülők:
+	-Jegyek/Hiányzások megtekintése
+	-Igazolás feltöltése
+	-Levelezés a tanárokkal
+	-Órarend megtekintése
+Tanárok:
+	-Jegyek módosítása/megtekintése
+	-Tananyagok/dokumentumok feltöltése
+	-Hiányzások felvitele
+Admin:
+	-Regisztrációk jóváhagyása
+	-Szerepek kiosztása
+	-Felhasználók törlése
+Token:
+	-AccessToken generálása
+	-RefreshTokengenerálása
+Adatokkal kapcsolatos:
+	-Jegyek átlagolása tanulónként és óránként
+	-Jegyek Átlagolása osztályszinten
+	-Tanulók csoportosítása osztályonként
+	
