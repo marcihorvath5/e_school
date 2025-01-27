@@ -16,5 +16,6 @@ namespace e_school.Models
         public ICollection<Grade>? Grades { get; set; }
         public ICollection<TeacherSubject>? Subjects { get; set; }
         public ICollection<Grade>? GivenGrades { get; set; }
+        public ICollection<ClassTeacherSubject>? ClassAndSubject {  get; set; }
     }
 }

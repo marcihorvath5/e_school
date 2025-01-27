@@ -1,4 +1,5 @@
 using e_school.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,11 @@ builder.Services.AddDbContext<SchoolDb>(db =>
     db.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
                 ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")));
 });
+
+builder.Services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<SchoolDb>()
+                .AddDefaultTokenProviders();
+                
 
 var app = builder.Build();
 
