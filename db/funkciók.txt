@@ -27,4 +27,6 @@ Adatokkal kapcsolatos:
 	-Jegyek átlagolása tanulónként és óránként
 	-Jegyek Átlagolása osztályszinten
 	-Tanulók csoportosítása osztályonként
+
+https://www.binaryintellect.net/articles/5e180dfa-4438-45d8-ac78-c7cc11735791.aspx
 	

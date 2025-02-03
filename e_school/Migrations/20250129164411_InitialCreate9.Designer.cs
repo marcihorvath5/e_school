@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using e_school.Models;
 
@@ -11,9 +12,11 @@ using e_school.Models;
 namespace e_school.Migrations
 {
     [DbContext(typeof(SchoolDb))]
-    partial class SchoolDbModelSnapshot : ModelSnapshot
+    [Migration("20250129164411_InitialCreate9")]
+    partial class InitialCreate9
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,7 +227,7 @@ namespace e_school.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<int?>("SubjectId")
+                    b.Property<int>("SubjectId")
                         .HasColumnType("int");
 
                     b.Property<string>("TeacherId")
@@ -285,10 +288,10 @@ namespace e_school.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("BirthDate")
+                    b.Property<DateTime?>("BirthDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("ClassId")
+                    b.Property<int>("ClassId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -315,6 +318,9 @@ namespace e_school.Migrations
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
+
+                    b.Property<string>("ParentId")
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("longtext");
@@ -345,6 +351,8 @@ namespace e_school.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
+
+                    b.HasIndex("ParentId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -456,7 +464,9 @@ namespace e_school.Migrations
 
                     b.HasOne("e_school.Models.Subject", "Subject")
                         .WithMany("Grades")
-                        .HasForeignKey("SubjectId");
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("e_school.Models.User", "Teacher")
                         .WithMany("GivenGrades")
@@ -494,9 +504,17 @@ namespace e_school.Migrations
                 {
                     b.HasOne("e_school.Models.Class", "Class")
                         .WithMany("Students")
-                        .HasForeignKey("ClassId");
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("e_school.Models.User", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
 
                     b.Navigation("Class");
+
+                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("e_school.Models.Class", b =>
@@ -521,6 +539,8 @@ namespace e_school.Migrations
 
             modelBuilder.Entity("e_school.Models.User", b =>
                 {
+                    b.Navigation("Children");
+
                     b.Navigation("ClassAndSubject");
 
                     b.Navigation("GivenGrades");

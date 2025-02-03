@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using e_school.Models;
 
@@ -11,9 +12,11 @@ using e_school.Models;
 namespace e_school.Migrations
 {
     [DbContext(typeof(SchoolDb))]
-    partial class SchoolDbModelSnapshot : ModelSnapshot
+    [Migration("20250203183652_InitialCreate10")]
+    partial class InitialCreate10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -224,7 +227,7 @@ namespace e_school.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<int?>("SubjectId")
+                    b.Property<int>("SubjectId")
                         .HasColumnType("int");
 
                     b.Property<string>("TeacherId")
@@ -456,7 +459,9 @@ namespace e_school.Migrations
 
                     b.HasOne("e_school.Models.Subject", "Subject")
                         .WithMany("Grades")
-                        .HasForeignKey("SubjectId");
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("e_school.Models.User", "Teacher")
                         .WithMany("GivenGrades")

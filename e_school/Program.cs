@@ -11,6 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+
 builder.Services.AddDbContext<SchoolDb>(db =>
 {
     db.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -20,7 +22,6 @@ builder.Services.AddDbContext<SchoolDb>(db =>
 builder.Services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<SchoolDb>()
                 .AddDefaultTokenProviders();
-                
 
 var app = builder.Build();
 
@@ -33,7 +34,27 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+
 app.UseAuthorization();
+
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    try
+    {
+        var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var db = serviceProvider.GetRequiredService<SchoolDb>();
+
+        await UserSeed.SeedDataAsync(db ,userManager, roleManager);
+    }
+    catch (Exception)
+    {
+        throw;
+    }
+}
+
 
 app.MapControllers();
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace e_school.Models
@@ -52,7 +53,37 @@ namespace e_school.Models
                                    .HasForeignKey(g => g.StudentId);
             builder.Entity<Grade>().HasOne(t => t.Teacher)
                                    .WithMany(g => g.GivenGrades)
-                                   .HasForeignKey(g =>g.TeacherId);        
+                                   .HasForeignKey(g =>g.TeacherId);
+
+
+            //var appUser = new User
+            //{
+
+            //    Email = "frankofoedu@gmail.com",
+            //    EmailConfirmed = true,
+            //    ClassId = 1,
+            //    UserName = "frankofoedu@gmail.com",
+            //    NormalizedUserName = "FRANKOFOEDU@GMAIL.COM",
+            //    PhoneNumberConfirmed = true,
+            //    TwoFactorEnabled = false,
+            //    LockoutEnabled = false,
+            //    AccessFailedCount = 0
+            //};
+
+            ////set user password
+            //PasswordHasher<User> ph = new PasswordHasher<User>();
+            //appUser.PasswordHash = ph.HashPassword(appUser, "mypassword_ ?");
+
+            //var result = Users.FirstOrDefault(x => x.Email == appUser.Email);
+
+            //if (result == null)
+            //{
+            //    //seed user
+            //    builder.Entity<User>().HasData(appUser);
+
+            //}
+            
+            
         }
     }
 }
