@@ -55,6 +55,8 @@ namespace e_school.Models
                                    .WithMany(g => g.GivenGrades)
                                    .HasForeignKey(g =>g.TeacherId);
 
+            builder.Entity<Subject>().HasIndex(x => x.Name).IsUnique();
+
 
             //var appUser = new User
             //{

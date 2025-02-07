@@ -9,7 +9,11 @@ namespace e_school.Models
         {
             await SeedRolesAsync(roleManager);
             await SeedUsersAsync(userManager);
-            await SeedGradesAsync(db);
+            //await SeedGradesAsync(db);
+            await SeedSubjectsAsync(db);
+            await SeedTeacherSubjectAsync(db, userManager);
+            await SeedClassesAsync(db);
+            await SeedClassSubjectsAsync(db);
         }
         public static async Task SeedUsersAsync(UserManager<User> userManager)
         {
@@ -42,16 +46,25 @@ namespace e_school.Models
                 Console.WriteLine(result1);
             }
         }
-        public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+        public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager) 
         {
-            if (!roleManager.RoleExistsAsync("Student").Result)
+            string[] roles = ["Student", "Teacher", "Admin", "NormalUser"];
+
+            foreach (var role in roles)
             {
-                IdentityRole role = new IdentityRole();
-                role.Name = "Student";
-                IdentityResult roleResult =await roleManager.CreateAsync(role);
-                Console.WriteLine(roleResult);
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
+
+                else
+                {
+                    Console.WriteLine($"{role} szerepkör már létezik"); ;
+                }
             }
         }
+            
+        
 
         public static async Task SeedGradesAsync(SchoolDb db) 
         {
@@ -77,7 +90,123 @@ namespace e_school.Models
             foreach (var item in query)
             {
                 Console.WriteLine($"{item.Value}: {item.Student.Email}, {item.Teacher.Email}");
-            }                                                            
+            }
+        }
+
+        public static async Task SeedSubjectsAsync(SchoolDb db)
+        {
+            var subject = new Subject()
+            {
+                Name = "Informatika",
+            };
+
+            if (await db.Subjects.FirstOrDefaultAsync(x => x.Name == subject.Name) == null)
+            {
+                db.Subjects.Update(subject);
+                await db.SaveChangesAsync();
+            }
+
+            else
+            {
+                Console.WriteLine("Már létezik");
+            }
+
+        }
+
+        public static async Task SeedTeacherSubjectAsync(SchoolDb db, UserManager<User> userManager)
+        {
+            var teacher = await userManager.FindByEmailAsync("b@b.hu");
+            var subject = await db.Subjects.FirstOrDefaultAsync(x => x.Name == "Informatika");
+
+            try
+            {
+                if (teacher != null && subject != null)
+                {
+                    var ts = new TeacherSubject()
+                    {
+                        SubjectId = subject.Id,
+                        Subject = subject,
+                        TeacherId = teacher.Id,
+                        Teacher = teacher
+                    };
+
+                    if (await db.Teachers.FirstOrDefaultAsync(x => x.TeacherId == ts.TeacherId && x.SubjectId == ts.SubjectId) == null)
+                    {
+                        await db.Teachers.AddAsync(ts);
+                        await db.SaveChangesAsync();
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("Már létezik a tanár és tantárgy");
+
+                    }
+
+                }
+
+                else
+                {
+                    Console.WriteLine("Nem megfelelő adatok");
+                }
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }            
+        }
+
+        public static async Task SeedClassesAsync(SchoolDb db) 
+        {
+            var cls = new Class()
+            {
+                Name = "12.a",
+                Year = 4
+            };
+
+            var result = await db.Classes.FirstOrDefaultAsync(x => x.Name == cls.Name);
+
+            if (result == null)
+            {
+                await db.Classes.AddAsync(cls);
+                await db.SaveChangesAsync();
+            }
+
+            else
+            {
+                Console.WriteLine("Az osztály már létezik");
+            }
+        }
+
+        public static async Task SeedClassSubjectsAsync(SchoolDb db) 
+        {
+            var cls = await db.Classes.FirstOrDefaultAsync(x => x.Name == "12.a");
+            var sbj = await db.Subjects.FirstOrDefaultAsync(x => x.Name == "Informatika");
+            if (cls != null && sbj != null)
+            {
+                var cs = new ClassSubject()
+                {
+                    Class = cls,
+                    Subject = sbj,
+                    ClassId = cls.Id,
+                    SubjectId = sbj.Id
+
+                };
+
+                var result = await db.ClassSubjects.FirstOrDefaultAsync(x => x.SubjectId == cs.SubjectId && x.ClassId == cs.ClassId);
+
+                if (result == null)
+                {
+                    await db.ClassSubjects.AddAsync(cs);
+                    await db.SaveChangesAsync();
+                }
+
+                else
+                {
+                    Console.WriteLine($"A(z) {sbj.Name} tantárgy már hozzá van rendelve a(z){cls.Name} osztályhoz");
+                }
+            }
         }
     }
 }
