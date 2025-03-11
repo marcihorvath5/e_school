@@ -7,7 +7,7 @@
         public int Year { get; set; }
 
         public ICollection<User>? Students { get; set; }
-        public ICollection<ClassSubject> Classes { get; set; }
+        public ICollection<ClassSubject> Subjects { get; set; }
         public ICollection<ClassTeacherSubject> TeacherAndSubject { get; set; }
     }
 }

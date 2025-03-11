@@ -1,6 +1,8 @@
 using e_school.Models;
+using e_school.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +13,22 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors();
 
+builder.Services.AddScoped<ITeacherService, TeacherService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 1;
+    options.Password.RequireDigit = false;
+    options.Password.RequireUppercase = false;
+});
+
+//builder.Services.AddControllers().AddJsonOptions(options =>
+//                                  options.JsonSerializerOptions.ReferenceHandler = System.Text.Json
+//                                  .Serialization.ReferenceHandler.Preserve);
 
 builder.Services.AddDbContext<SchoolDb>(db =>
 {
@@ -31,7 +48,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors(configurePolicy: policy =>
+{
+    policy.WithOrigins("http://localhost:5173");
+    policy.WithOrigins("http://localhost:5174");
+});
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
@@ -54,7 +75,6 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 }
-
 
 app.MapControllers();
 

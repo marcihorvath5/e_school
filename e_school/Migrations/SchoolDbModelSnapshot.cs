@@ -406,7 +406,7 @@ namespace e_school.Migrations
             modelBuilder.Entity("e_school.Models.ClassSubject", b =>
                 {
                     b.HasOne("e_school.Models.Class", "Class")
-                        .WithMany("Classes")
+                        .WithMany("Subjects")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -504,9 +504,9 @@ namespace e_school.Migrations
 
             modelBuilder.Entity("e_school.Models.Class", b =>
                 {
-                    b.Navigation("Classes");
-
                     b.Navigation("Students");
+
+                    b.Navigation("Subjects");
 
                     b.Navigation("TeacherAndSubject");
                 });
