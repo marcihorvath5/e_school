@@ -1,6 +1,7 @@
 ﻿using e_school.DTOs;
 using e_school.Models;
 using Microsoft.AspNetCore.Identity;
+using Swashbuckle.Swagger;
 
 namespace e_school.Services
 {
@@ -9,12 +10,14 @@ namespace e_school.Services
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ITokenService _tokenService;
 
-        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
+        public UserService(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, ITokenService tokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _tokenService = tokenService;
         }
 
         public async Task<IdentityResult> RegisterAsync(RegisterDTO model)
@@ -35,9 +38,27 @@ namespace e_school.Services
             IdentityResult result = await _userManager.CreateAsync(newUser, model.Password);
             return result;
         }
-        public Task<IdentityResult> Login()
+        public async Task<string> LoginAsync(LoginDTO model)
         {
-            throw new NotImplementedException();
+            User user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
+
+            
+
+            if (!result.Succeeded)
+            {
+                return "Hibás jelszó";
+            }
+
+            string token = await _tokenService.GenerateAccessJwtToken(user);
+
+            return token;
         }
     }
 }

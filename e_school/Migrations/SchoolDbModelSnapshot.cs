@@ -224,7 +224,7 @@ namespace e_school.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.Property<int?>("SubjectId")
+                    b.Property<int>("SubjectId")
                         .HasColumnType("int");
 
                     b.Property<string>("TeacherId")
@@ -288,8 +288,8 @@ namespace e_school.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("BirthDate")
-                        .HasColumnType("datetime(6)");
+                    b.Property<DateOnly>("BirthDate")
+                        .HasColumnType("date");
 
                     b.Property<int?>("ClassId")
                         .HasColumnType("int");
@@ -304,6 +304,14 @@ namespace e_school.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("tinyint(1)");
@@ -412,7 +420,7 @@ namespace e_school.Migrations
                         .IsRequired();
 
                     b.HasOne("e_school.Models.Subject", "Subject")
-                        .WithMany("Subjects")
+                        .WithMany("Classes")
                         .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -459,7 +467,9 @@ namespace e_school.Migrations
 
                     b.HasOne("e_school.Models.Subject", "Subject")
                         .WithMany("Grades")
-                        .HasForeignKey("SubjectId");
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("e_school.Models.User", "Teacher")
                         .WithMany("GivenGrades")
@@ -515,9 +525,9 @@ namespace e_school.Migrations
                 {
                     b.Navigation("ClassAndTeacher");
 
-                    b.Navigation("Grades");
+                    b.Navigation("Classes");
 
-                    b.Navigation("Subjects");
+                    b.Navigation("Grades");
 
                     b.Navigation("Teachers");
                 });

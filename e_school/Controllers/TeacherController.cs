@@ -1,11 +1,12 @@
 ﻿using e_school.Models;
 using e_school.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace e_school.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class TeacherController : ControllerBase
@@ -16,8 +17,9 @@ namespace e_school.Controllers
         {
             _teacherService = teacherService;
         }
-
-        [HttpGet]
+      
+        [HttpGet("GetClasses")]
+        [Authorize]
         public IActionResult GetClasses()
         {
             List<Class> classes = _teacherService.GetClasses();
@@ -25,6 +27,7 @@ namespace e_school.Controllers
             return Ok(classes);
         }
 
+       
         [HttpGet("GetClassByName")]
         public IActionResult GetClassByName(string name) 
         {

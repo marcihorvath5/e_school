@@ -7,52 +7,110 @@ namespace e_school.Models
     {
         public static async Task SeedDataAsync(SchoolDb db, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            await SeedRolesAsync(roleManager);
-            await SeedClassesAsync(db);
-            await SeedUsersAsync(userManager);
-            await SeedSubjectsAsync(db);
-            await SeedGradesAsync(db);          
-            await SeedTeacherSubjectAsync(db, userManager);
-            await SeedClassSubjectsAsync(db);
+            //await SeedRolesAsync(roleManager);
+            //await SeedClassesAsync(db);
+            //await SeedStudentsAsync(userManager, db);
+            //await SeedTeachersAsync(userManager);
+            //await SeedSubjectsAsync(db);
+            //await SeedClassSubjectsAsync(db);
+            //await SeedTeacherSubjectsAsync(db, userManager);            
+            //await SeedGradesAsync(db);          
+            //await SeedClassTeacherSubjectsAsync(db, userManager);
         }
-        public static async Task SeedUsersAsync(UserManager<User> userManager)
-        {
-            if (await userManager.FindByEmailAsync("a@a.hu") == null)
-            {
-                User user = new User()
-                {
-                    Email = "a@a.hu",
-                    BirthDate = new DateOnly(1994, 12, 16),
-                    PasswordHash = "5c222a477001ef63ec220dd86c27f952a55397b4987749bed0bb2568a82292ac",
-                    UserName = "a@a.hu",
-                    PhoneNumber = "0036309833728",
-                    PhoneNumberConfirmed = true,
-                    ClassId = 1
-                };
 
-                IdentityResult result = await userManager.CreateAsync(user);
-                Console.WriteLine(result);
-            }
-            if (await userManager.FindByEmailAsync("d@d.hu") == null)
+        public static async Task SeedStudentsAsync(UserManager<User> userManager, SchoolDb db)
+        {
+            var classes = await db.Classes.ToListAsync();
+            var firstNames = new List<string> { "Bence", "Anna", "Gabor", "Eszter", "Laszlo", "Katalin", "Miklos", "Zsofia", "Istvan", "Julia" };
+            var lastNames = new List<string> { "Kovacs", "Nagy", "Toth", "Szabo", "Horvath", "Varga", "Kiss", "Molnar", "Nemeth", "Farkas" };
+            int studentCounter = 1;
+            var random = new Random();
+
+            foreach (var cls in classes)
             {
-                    User user1 = new User()
+                for (int i = 0; i < 10; i++)
+                {
+                    string firstName = firstNames[random.Next(firstNames.Count)];
+                    string lastName = lastNames[random.Next(lastNames.Count)];
+                    string email = $"{firstName.ToLower()}.{lastName.ToLower()}{studentCounter}@school.com";
+                    if (await userManager.FindByEmailAsync(email) == null)
                     {
-                        Email = "d@d.hu",
-                        BirthDate = new DateOnly(1994, 12, 16),
-                        PasswordHash = "5c222a477001ef63ec220dd86c27f952a55397b4987749bed0bb2568a82292ac",
-                        UserName = "d@d.hu",
-                        PhoneNumber = "0036309833728",
-                        PhoneNumberConfirmed = true,
-                        ClassId = 1
+                        User user = new User()
+                        {
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Email = email,
+                            BirthDate = new DateOnly(2005, 1, 1).AddYears(-cls.Year),
+                            UserName = email,
+                            PhoneNumber = $"003630000000{studentCounter}",
+                            PhoneNumberConfirmed = true,
+                            ClassId = cls.Id,
+                            EmailConfirmed = true,
+                            TwoFactorEnabled = false,
+                            LockoutEnabled = false,
+                            AccessFailedCount = 0
+                        };
+
+                        IdentityResult result = await userManager.CreateAsync(user, "Password123!");
+                        if (result.Succeeded)
+                        {
+                            await userManager.AddToRoleAsync(user, "Student");
+                            Console.WriteLine($"User created: {email}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Failed to create user: {email}");
+                        };
+
+                        studentCounter++;
+                    }
+                }
+            } 
+        }
+
+        public static async Task SeedTeachersAsync(UserManager<User> userManager)
+        {
+            var firstNames = new List<string> { "Andras", "Balazs", "Csaba", "Dorottya", "Erika", "Ferenc", "Gyorgy", "Hajnalka", "Imre", "Janos" };
+            var lastNames = new List<string> { "Balogh", "Fazekas", "Gulyas", "Hegedus", "Juhasz", "Kertesz", "Lakatos", "Madarasz", "Nagy", "Orban" };
+            int teacherCounter = 1;
+            var random = new Random();
+
+            for (int i = 0; i < 10; i++)
+            {
+                string firstName = firstNames[random.Next(firstNames.Count)];
+                string lastName = lastNames[random.Next(lastNames.Count)];
+                string email = $"{firstName.ToLower()}.{lastName.ToLower()}{teacherCounter}@school.com";
+                if (await userManager.FindByEmailAsync(email) == null)
+                {
+                    User user = new User()
+                    {
+                        FirstName = firstName,
+                        LastName = lastName,
+                        Email = email,
+                        BirthDate = new DateOnly(1980, 1, 1).AddYears(random.Next(20)),
+                        UserName = email,
+                        PhoneNumber = $"003630000000{teacherCounter}",
+                        PhoneNumberConfirmed = true
                     };
 
-                    IdentityResult result1 = await userManager.CreateAsync(user1);
-                    Console.WriteLine(result1);
+                    IdentityResult result = await userManager.CreateAsync(user, "Password123!");
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(user, "Teacher");
+                        Console.WriteLine($"Teacher created: {email}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Failed to create teacher: {email}");
+                    }
+                }
+                teacherCounter++;
             }
         }
+
         public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         {
-            string[] roles = ["Student", "Teacher", "Admin", "NormalUser", "Unclassified"];
+            string[] roles = ["Student", "Teacher", "Admin", "Unclassified"];
 
             foreach (var role in roles)
             {
@@ -69,6 +127,50 @@ namespace e_school.Models
         }
 
 
+        public static async Task SeedTeacherSubjectsAsync(SchoolDb db, UserManager<User> userManager)
+        {
+            var teachers = await userManager.GetUsersInRoleAsync("Teacher");
+            var subjects = await db.Subjects.ToListAsync();
+            var random = new Random();
+
+            // Biztosítjuk, hogy minden tantárgy legalább egyszer kiosztásra kerüljön
+            var subjectQueue = new Queue<Subject>(subjects.OrderBy(_ => random.Next()));
+
+            foreach (var teacher in teachers)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    Subject subject;
+
+                    if (subjectQueue.Count > 0)
+                    {
+                        subject = subjectQueue.Dequeue();
+                    }
+                    else
+                    {
+                        subject = subjects[random.Next(subjects.Count)];
+                    }
+
+                    var teacherSubject = new TeacherSubject
+                    {
+                        TeacherId = teacher.Id,
+                        SubjectId = subject.Id
+                    };
+
+                    if (await db.Teachers.FirstOrDefaultAsync(ts => ts.TeacherId == teacherSubject.TeacherId && ts.SubjectId == teacherSubject.SubjectId) == null)
+                    {
+                        await db.Teachers.AddAsync(teacherSubject);
+                        await db.SaveChangesAsync();
+                        Console.WriteLine($"Assigned subject {subject.Name} to teacher {teacher.Email}");
+                    }
+                    else
+                    {
+
+                        Console.WriteLine($"Subject {subject.Name} already assigned to teacher {teacher.Email}");
+                    }
+                }
+            }
+        }
 
         public static async Task SeedGradesAsync(SchoolDb db)
         {
@@ -102,161 +204,147 @@ namespace e_school.Models
 
         public static async Task SeedSubjectsAsync(SchoolDb db)
         {
-            var subject = new Subject()
+            var subjects = new List<Subject>
             {
-                Name = "Informatika",
+                new Subject { Name = "Matematika" },
+                new Subject { Name = "Fizika" },
+                new Subject { Name = "Kemia" },
+                new Subject { Name = "Biológia" },
+                new Subject { Name = "Informatika" },
+                new Subject { Name = "Torténelem" },
+                new Subject { Name = "Foldrajz" },
+                new Subject { Name = "Irodalom" },
+                new Subject { Name = "Nyelvtan" },
+                new Subject { Name = "Angol" },
+                new Subject { Name = "Nemet" },
+                new Subject { Name = "Francia" }
             };
 
-            if (await db.Subjects.FirstOrDefaultAsync(x => x.Name == subject.Name) == null)
+            foreach (var subject in subjects)
             {
-                db.Subjects.Update(subject);
-                await db.SaveChangesAsync();
-            }
-
-            else
-            {
-                Console.WriteLine("Már létezik");
-            }
-
-        }
-
-        public static async Task SeedTeacherSubjectAsync(SchoolDb db, UserManager<User> userManager)
-        {
-            var teacher = await userManager.FindByEmailAsync("b@b.hu");
-            var subject = await db.Subjects.FirstOrDefaultAsync(x => x.Name == "Informatika");
-
-            try
-            {
-                if (teacher != null && subject != null)
+                var existingSubject = await db.Subjects.FirstOrDefaultAsync(x => x.Name == subject.Name);
+                if (existingSubject == null)
                 {
-                    var ts = new TeacherSubject()
-                    {
-                        SubjectId = subject.Id,
-                        Subject = subject,
-                        TeacherId = teacher.Id,
-                        Teacher = teacher
-                    };
-
-                    if (await db.Teachers.FirstOrDefaultAsync(x => x.TeacherId == ts.TeacherId && x.SubjectId == ts.SubjectId) == null)
-                    {
-                        await db.Teachers.AddAsync(ts);
-                        await db.SaveChangesAsync();
-                    }
-
-                    else
-                    {
-                        Console.WriteLine("Már létezik a tanár és tantárgy");
-
-                    }
-
+                    await db.Subjects.AddAsync(subject);
+                    await db.SaveChangesAsync();
                 }
-
                 else
                 {
-                    Console.WriteLine("Nem megfelelő adatok");
+                    Console.WriteLine($"A tantárgy már létezik: {subject.Name}");
                 }
-
             }
-            catch (Exception)
-            {
 
-                throw;
-            }
-        }
+        }        
 
         public static async Task SeedClassesAsync(SchoolDb db)
         {
-            var cls = new Class()
-            {
-                Name = "12.a",
-                Year = 4
-            };
+            var classes = new List<Class>
+    {
+        new Class { Name = "9.a", Year = 1 },
+        new Class { Name = "9.b", Year = 1 },
+        new Class { Name = "9.c", Year = 1 },
+        new Class { Name = "10.a", Year = 2 },
+        new Class { Name = "10.b", Year = 2 },
+        new Class { Name = "10.c", Year = 2 },
+        new Class { Name = "11.a", Year = 3 },
+        new Class { Name = "11.b", Year = 3 },
+        new Class { Name = "11.c", Year = 3 },
+        new Class { Name = "12.a", Year = 4 },
+        new Class { Name = "12.b", Year = 4 },
+        new Class { Name = "12.c", Year = 4 }
+    };
 
-            var cls1 = new Class()
+            foreach (var cls in classes)
             {
-                Name = "10.b",
-                Year = 2
-            };
-
-            var result = await db.Classes.FirstOrDefaultAsync(x => x.Name == cls.Name);
-            var result1 = await db.Classes.FirstOrDefaultAsync(x => x.Name == cls1.Name);
-
-            if (result == null)
-            {
-                await db.Classes.AddAsync(cls);
-                await db.SaveChangesAsync();
-            }
-
-            else
-            {
-                Console.WriteLine("Az osztály már létezik");
-            }
-
-            if (result1 == null)
-            {
-                await db.Classes.AddAsync(cls1);
-                await db.SaveChangesAsync();
-            }
-
-            else
-            {
-                Console.WriteLine("Az osztály már létezik");
+                var existingClass = await db.Classes.FirstOrDefaultAsync(x => x.Name == cls.Name);
+                if (existingClass == null)
+                {
+                    await db.Classes.AddAsync(cls);
+                    await db.SaveChangesAsync();
+                }
+                else
+                {
+                    Console.WriteLine($"Az osztály már létezik: {cls.Name}");
+                }
             }
 
         }
 
         public static async Task SeedClassSubjectsAsync(SchoolDb db)
         {
-            var cls = await db.Classes.FirstOrDefaultAsync(x => x.Name == "12.a");
-            var cls1 = await db.Classes.FirstOrDefaultAsync(x => x.Name == "11.b");
-            var sbj = await db.Subjects.FirstOrDefaultAsync(x => x.Name == "Informatika");
-            if (cls != null && sbj != null)
+            var classes = await db.Classes.ToListAsync();
+            var subjects = await db.Subjects.ToListAsync();
+            var random = new Random();
+
+            foreach (var cls in classes)
             {
-                var cs = new ClassSubject()
-                {
-                    Class = cls,
-                    Subject = sbj,
-                    ClassId = cls.Id,
-                    SubjectId = sbj.Id
+                var assignedSubjects = new HashSet<int>();
 
-                };
-
-                if (cls1 != null && sbj != null)
+                for (int i = 0; i < 8; i++)
                 {
-                    var cs1 = new ClassSubject()
+                    Subject subject;
+                    do
                     {
-                        Class = cls1,
-                        Subject = sbj,
-                        ClassId = cls.Id,
-                        SubjectId = sbj.Id
+                        subject = subjects[random.Next(subjects.Count)];
+                    } while (assignedSubjects.Contains(subject.Id));
 
+                    assignedSubjects.Add(subject.Id);
+
+                    var classSubject = new ClassSubject
+                    {
+                        ClassId = cls.Id,
+                        SubjectId = subject.Id
                     };
 
-                    var result = await db.ClassSubjects.FirstOrDefaultAsync(x => x.SubjectId == cs.SubjectId && x.ClassId == cs.ClassId);
-                    var result1 = await db.ClassSubjects.FirstOrDefaultAsync(x => x.SubjectId == cs1.SubjectId && x.ClassId == cs1.ClassId);
-
-                    if (result == null)
+                    if (await db.ClassSubjects.FirstOrDefaultAsync(cs => cs.ClassId == classSubject.ClassId && cs.SubjectId == classSubject.SubjectId) == null)
                     {
-                        await db.ClassSubjects.AddAsync(cs);
+                        await db.ClassSubjects.AddAsync(classSubject);
                         await db.SaveChangesAsync();
+                        Console.WriteLine($"Assigned subject {subject.Name} to class {cls.Name}");
                     }
-
                     else
                     {
-                        Console.WriteLine($"A(z) {sbj.Name} tantárgy már hozzá van rendelve a(z){cls.Name} osztályhoz");
+                        Console.WriteLine($"Subject {subject.Name} already assigned to class {cls.Name}");
                     }
+                }
+            }
+        }
 
-                    if (result1 == null)
+        public static async Task SeedClassTeacherSubjectsAsync(SchoolDb db, UserManager<User> userManager)
+        {
+            var classes = await db.Classes.ToListAsync();
+            var random = new Random();
+
+            foreach (var cls in classes)
+            {
+                var classSubjects = await db.ClassSubjects.Where(cs => cs.ClassId == cls.Id).ToListAsync();
+
+                foreach (var classSubject in classSubjects)
+                {
+                    var teachers = await db.Teachers.Where(ts => ts.SubjectId == classSubject.SubjectId).ToListAsync();
+
+                    if (teachers.Count > 0)
                     {
-                        await db.ClassSubjects.AddAsync(cs1);
-                        await db.SaveChangesAsync();
-                    }
+                        var teacher = teachers[random.Next(teachers.Count)];
 
-                    else
-                    {
-                        Console.WriteLine($"A(z) {sbj.Name} tantárgy már hozzá van rendelve a(z){cls1.Name} osztályhoz");
-                    }
+                        var classTeacherSubject = new ClassTeacherSubject
+                        {
+                            ClassId = cls.Id,
+                            SubjectId = classSubject.SubjectId,
+                            TeacherId = teacher.TeacherId
+                        };
 
+                        if (await db.ClassTeacherSubjects.FirstOrDefaultAsync(cts => cts.ClassId == classTeacherSubject.ClassId && cts.SubjectId == classTeacherSubject.SubjectId && cts.TeacherId == classTeacherSubject.TeacherId) == null)
+                        {
+                            await db.ClassTeacherSubjects.AddAsync(classTeacherSubject);
+                            await db.SaveChangesAsync();
+                            Console.WriteLine($"Assigned teacher  to class  for subject ");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Teacher  already assigned to class  for subject ");
+                        }
+                    }
                 }
             }
         }

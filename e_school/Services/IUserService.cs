@@ -5,7 +5,7 @@ namespace e_school.Services
 {
     public interface IUserService
     {
-        public Task<IdentityResult> RegisterAsync (RegisterDTO model);
-        public Task<IdentityResult> Login();
+        Task<IdentityResult> RegisterAsync (RegisterDTO model);
+        Task<string> LoginAsync(LoginDTO model);
     }
 }

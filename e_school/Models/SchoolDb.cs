@@ -26,7 +26,7 @@ namespace e_school.Models
 
             builder.Entity<ClassSubject>().HasKey(x => new {x.SubjectId, x.ClassId});
             builder.Entity<ClassSubject>().HasOne(s => s.Subject)
-                                          .WithMany(s => s.Subjects);
+                                          .WithMany(s => s.Classes);
 
             builder.Entity<ClassSubject>().HasOne(c => c.Class)
                                           .WithMany(c => c.Subjects);

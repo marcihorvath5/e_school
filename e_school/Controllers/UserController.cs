@@ -16,7 +16,7 @@ namespace e_school.Controllers
             _userService = userService;
         }
 
-        [HttpPost("Register")]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync(RegisterDTO model)
         {
             if (!ModelState.IsValid)
@@ -30,6 +30,17 @@ namespace e_school.Controllers
             }
             
             return BadRequest(result.Errors);
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDTO model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var result = await _userService.LoginAsync(model);
+            return result != null ? Ok(result) : (IActionResult)Unauthorized("Hibás felhasználónév vagy jelszó");
         }
     }
 }
