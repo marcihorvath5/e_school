@@ -43,7 +43,12 @@ namespace e_school.Services
             Console.WriteLine($"Ez a szupertitkos kulcsom:{jwtSettings["Key"]}");
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var expires = DateTime.UtcNow.AddMinutes(Convert.ToDouble(jwtSettings["ExpireMinutes"]));
+            int expireMinutes = int.Parse(jwtSettings["ExpireMinutes"]);
+            Console.WriteLine(expireMinutes);
+
+            var expires = DateTime.UtcNow.AddMinutes(expireMinutes);
+            var now = DateTime.UtcNow;
+            Console.WriteLine($"most: {now} lejárat: {expires}");
             var token = new JwtSecurityToken(
                 issuer:jwtSettings["Issuer"],
                 audience:jwtSettings["Audience"],

@@ -27,6 +27,10 @@ builder.Services.AddScoped<ITeacherService, TeacherService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
+builder.Services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<SchoolDb>()
+                .AddDefaultTokenProviders();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -36,6 +40,7 @@ builder.Services.AddAuthentication(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
+                        ClockSkew = TimeSpan.Zero,
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
@@ -65,10 +70,6 @@ builder.Services.AddDbContext<SchoolDb>(db =>
     db.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
                 ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection")));
 });
-
-builder.Services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<SchoolDb>()
-                .AddDefaultTokenProviders();
 
 builder.WebHost.ConfigureKestrel(options =>
 {
