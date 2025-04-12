@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace e_school.Controllers
 {
-    
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TeacherController : ControllerBase
@@ -19,7 +19,6 @@ namespace e_school.Controllers
         }
       
         [HttpGet("GetClasses")]
-        [Authorize]
         public IActionResult GetClasses()
         {
             List<Class> classes = _teacherService.GetClasses();

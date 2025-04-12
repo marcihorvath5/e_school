@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 
 builder.Services.AddCors();
 
@@ -73,7 +79,7 @@ builder.Services.AddDbContext<SchoolDb>(db =>
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(5000);
+    options.ListenAnyIP(5001);
 });
 
 builder.Services.AddCors(options =>
@@ -83,7 +89,9 @@ builder.Services.AddCors(options =>
                       policy =>
                       {
                           policy.WithOrigins("http://172.20.10.4:5173",
-                                              "https://172.20.10.4:5173")
+                                              "https://172.20.10.4:5173",
+                                              "http://192.168.0.45:5173"
+                                              ,"http://169.254.172.157:5173")
                           
                           .AllowAnyMethod().AllowAnyHeader();
                       });

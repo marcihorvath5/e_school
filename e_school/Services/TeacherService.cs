@@ -21,17 +21,21 @@ namespace e_school.Services
         {
             var result =  _db.Classes
                 .Where(c => c.Name == name)
+                .Include(c => c.Subjects)
+                    .ThenInclude(s => s.Subject)
                 .Include(c => c.Students)
                 .ThenInclude(g => g.Grades)
                     .ThenInclude(s => s.Subject)
-                    .AsEnumerable()
+                .AsEnumerable()
                 .Select(c => new ClassWithStudentsDTO
                 {
                     ClassName = c.Name,
+                    Subjects = c.Subjects.Select(s => s.Subject.Name).ToList(),
                     Students = c.Students.Select(s => new StudentsWithGradesDTO
                     {
                         Id = s.Id,
-                        Email = s.Email,
+                        FirstName = s.FirstName,
+                        LastName = s.LastName,
                         Grades = s.Grades
                             .GroupBy(g => g.Subject.Name)
                             .Select(group => new GradesWithSubjectDTO
