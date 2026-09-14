@@ -7,15 +7,54 @@ namespace e_school.Models
     {
         public static async Task SeedDataAsync(SchoolDb db, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            //await SeedRolesAsync(roleManager);
+            await SeedAdminAsync(userManager, roleManager);
             //await SeedClassesAsync(db);
             //await SeedStudentsAsync(userManager, db);
             //await SeedTeachersAsync(userManager);
             //await SeedSubjectsAsync(db);
             //await SeedClassSubjectsAsync(db);
-            //await SeedTeacherSubjectsAsync(db, userManager);            
-            //await SeedGradesAsync(db);          
+            //await SeedTeacherSubjectsAsync(db, userManager);
+            //await SeedGradesAsync(db);
             //await SeedClassTeacherSubjectsAsync(db, userManager);
+        }
+
+        public static async Task SeedAdminAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            if (!await roleManager.RoleExistsAsync("Admin"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+
+            const string email = "admin@admin.com";
+            const string password = "admin";
+
+            if (await userManager.FindByEmailAsync(email) != null)
+            {
+                return;
+            }
+
+            User admin = new User
+            {
+                Email = email,
+                UserName = email,
+                FirstName = "Admin",
+                LastName = "Admin",
+                BirthDate = new DateOnly(1990, 1, 1),
+                EmailConfirmed = true,
+                PhoneNumberConfirmed = true,
+                TwoFactorEnabled = false,
+                LockoutEnabled = false
+            };
+
+            IdentityResult result = await userManager.CreateAsync(admin, password);
+            if (!result.Succeeded)
+            {
+                Console.WriteLine($"Failed to create admin: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                return;
+            }
+
+            await userManager.AddToRoleAsync(admin, "Admin");
+            Console.WriteLine($"Admin created: {email}");
         }
 
         public static async Task SeedStudentsAsync(UserManager<User> userManager, SchoolDb db)

@@ -32,6 +32,8 @@ namespace e_school.Services
             {
                 Email = model.Email,
                 UserName = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 BirthDate = model.BirthDate
             };
 

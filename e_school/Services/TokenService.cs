@@ -27,9 +27,9 @@ namespace e_school.Services
             var claims = new List<Claim>
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
-                    new Claim(JwtRegisteredClaimNames.GivenName,user.FirstName),
+                    new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
+                    new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
 
