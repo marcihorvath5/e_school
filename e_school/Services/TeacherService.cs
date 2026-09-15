@@ -30,7 +30,11 @@ namespace e_school.Services
                 .Select(c => new ClassWithStudentsDTO
                 {
                     ClassName = c.Name,
-                    Subjects = c.Subjects.Select(s => s.Subject.Name).ToList(),
+                    Subjects = c.Subjects.Select(s => new SubjectDTO
+                    {
+                        Id = s.Subject.Id,
+                        Name = s.Subject.Name
+                    }).ToList(),
                     Students = c.Students.Select(s => new StudentsWithGradesDTO
                     {
                         Id = s.Id,
@@ -102,7 +106,7 @@ namespace e_school.Services
             return false;
         }
 
-        public async Task<bool> AddGradeAsync(int value, string studentId, string teacherId, int subjectId)
+        public async Task<GradeDTO?> AddGradeAsync(int value, string studentId, string teacherId, int subjectId)
         {
             var student = await _db.Users.FirstOrDefaultAsync(s => s.Id == studentId);
             var teacher = await _db.Users.FirstOrDefaultAsync(t => t.Id == teacherId);
@@ -110,7 +114,7 @@ namespace e_school.Services
 
             if (student != null && teacher != null && subject != null && 0 < value && value <= 5)
             {
-                Grade grade = new Grade() 
+                Grade grade = new Grade()
                 {
                     Student = student,
                     StudentId = student.Id,
@@ -125,13 +129,15 @@ namespace e_school.Services
                 await _db.Grades.AddAsync(grade);
                 await _db.SaveChangesAsync();
 
-                return true;
+                return new GradeDTO
+                {
+                    GradeId = grade.Id,
+                    GradeValue = grade.Value,
+                    Date = grade.Date
+                };
             }
 
-            else
-            {
-                return false;
-            }
+            return null;
         }
     }
 }

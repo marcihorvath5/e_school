@@ -9,6 +9,6 @@ namespace e_school.Services
         public ClassWithStudentsDTO GetClassByName(string name);
         public Task<bool> DeleteGradeAsync(int gradeId, string studentId);
         public Task<bool> ModifyGradeAsync(int gradeId, int newValue);
-        public Task<bool> AddGradeAsync(int value, string studentId, string teacherId, int subjectId);
+        public Task<GradeDTO?> AddGradeAsync(int value, string studentId, string teacherId, int subjectId);
     }
 }

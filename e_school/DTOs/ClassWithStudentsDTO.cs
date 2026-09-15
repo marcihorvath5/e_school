@@ -6,7 +6,7 @@ namespace e_school.DTOs
     {
         public string ClassName { get; set;  }
 
-        public List<string> Subjects { get; set; } = new List<string>();
+        public List<SubjectDTO> Subjects { get; set; } = new List<SubjectDTO>();
         public List<StudentsWithGradesDTO>? Students { get; set; }
     }
 }

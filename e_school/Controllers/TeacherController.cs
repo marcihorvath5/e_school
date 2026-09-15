@@ -53,7 +53,7 @@ namespace e_school.Controllers
             return BadRequest($"Érvénytelen adatok {result}");
         }
 
-        [HttpPost("ModifyGrade")]
+        [HttpPut("ModifyGrade")]
         public async Task<IActionResult> ModifyGradeAsync(int gradeId, int newValue) 
         {
             var result = await _teacherService.ModifyGradeAsync(gradeId, newValue);
@@ -69,11 +69,11 @@ namespace e_school.Controllers
         [HttpPost("AddGrade")]
         public async Task<IActionResult> AddGradeAsync(int value, string studentId, string teacherId, int subjectId)
         {
-            var result = await _teacherService.AddGradeAsync(value, studentId, teacherId, subjectId);
+            var grade = await _teacherService.AddGradeAsync(value, studentId, teacherId, subjectId);
 
-            if (result) 
+            if (grade != null)
             {
-                return Ok($"A jegy feltöltésre került :{value}");
+                return Ok(grade);
             }
 
             return BadRequest("Az adatok kitöltése nem megfelelő");
